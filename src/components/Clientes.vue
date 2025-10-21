@@ -2,6 +2,7 @@
   <div>
     <h2>Lista de Clientes</h2>
 
+    <!-- Formulario para agregar cliente -->
     <form @submit.prevent="agregarCliente" class="form">
       <input v-model="nuevo.nombre" placeholder="Nombre" required />
       <input v-model="nuevo.apellido" placeholder="Apellido" required />
@@ -9,8 +10,10 @@
       <button type="submit">Agregar</button>
     </form>
 
+    <!-- Mensajes de error -->
     <div v-if="error" class="error">{{ error }}</div>
 
+    <!-- Lista de clientes -->
     <div v-else-if="clientes.length === 0">
       <p>No hay clientes. Inserta uno para probar.</p>
     </div>
@@ -30,18 +33,22 @@ const clientes = ref([])
 const error = ref('')
 const nuevo = ref({ nombre: '', apellido: '', email: '' })
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://backend-wd6r.onrender.com/'
+// API_URL desde variable de entorno (sin barra final)
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '')
 
+// Cargar clientes desde el backend
 async function cargarClientes() {
   try {
     const res = await fetch(`${API_URL}/clientes`)
     if (!res.ok) throw new Error('Error al obtener clientes')
     clientes.value = await res.json()
   } catch (err) {
-    error.value = err.message
+    console.error(err)
+    error.value = 'No se pudieron cargar los clientes. Revisa el backend.'
   }
 }
 
+// Agregar nuevo cliente
 async function agregarCliente() {
   try {
     const res = await fetch(`${API_URL}/clientes`, {
@@ -49,17 +56,19 @@ async function agregarCliente() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(nuevo.value),
     })
-    if (!res.ok) {
-      const data = await res.json()
-      throw new Error(data.error || 'Error al agregar cliente')
-    }
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Error al agregar cliente')
+
+    // Limpiar formulario y recargar clientes
     nuevo.value = { nombre: '', apellido: '', email: '' }
     await cargarClientes()
   } catch (err) {
+    console.error(err)
     error.value = err.message
   }
 }
 
+// Cargar clientes al montar el componente
 onMounted(cargarClientes)
 </script>
 
