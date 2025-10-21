@@ -37,9 +37,9 @@ const error = ref(null)
 
 onMounted(async () => {
   try {
-    // Si usas proxy en vite.config.js usa '/clientes'
-    // Si no usas proxy usa la URL completa: 'http://localhost:3000/clientes'
-    const res = await fetch('/clientes')
+    // ✅ Usando la variable de entorno VITE_API_URL
+const res = await fetch('https://backend-wd6r.onrender.com/clientes')
+
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     clientes.value = await res.json()
   } catch (err) {
