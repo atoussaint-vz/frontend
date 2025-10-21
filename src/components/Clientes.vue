@@ -30,7 +30,7 @@ const clientes = ref([])
 const error = ref('')
 const nuevo = ref({ nombre: '', apellido: '', email: '' })
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_API_URL || 'https://backend-wd6r.onrender.com/'
 
 async function cargarClientes() {
   try {
