@@ -34,7 +34,7 @@ const error = ref('')
 const nuevo = ref({ nombre: '', apellido: '', email: '' })
 
 // API_URL desde variable de entorno (sin barra final)
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000/clientes').replace(/\/$/, '')
+const API_URL = (import.meta.env.VITE_API_URL || 'https://backend-wd6r.onrender.com/clientes').replace(/\/$/, '')
 
 // Cargar clientes desde el backend
 async function cargarClientes() {
