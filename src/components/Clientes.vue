@@ -1,58 +1,76 @@
 <template>
-  <section>
-    <h2>Lista de clientes</h2>
+  <div>
+    <h2>Lista de Clientes</h2>
 
-    <div v-if="loading">Cargando clientes…</div>
+    <form @submit.prevent="agregarCliente" class="form">
+      <input v-model="nuevo.nombre" placeholder="Nombre" required />
+      <input v-model="nuevo.apellido" placeholder="Apellido" required />
+      <input v-model="nuevo.email" placeholder="Correo" />
+      <button type="submit">Agregar</button>
+    </form>
 
-    <div v-else>
-      <div v-if="error" class="error">{{ error }}</div>
+    <div v-if="error" class="error">{{ error }}</div>
 
-      <div v-else-if="clientes.length === 0">
-        <p>No hay clientes. Inserta uno para probar (o revisa la base).</p>
-      </div>
-
-      <table v-else class="table">
-        <thead>
-          <tr><th>ID</th><th>Nombre</th><th>Apellido</th><th>Email</th></tr>
-        </thead>
-        <tbody>
-          <tr v-for="c in clientes" :key="c.cod_cliente">
-            <td>{{ c.cod_cliente }}</td>
-            <td>{{ c.nombre }}</td>
-            <td>{{ c.apellido }}</td>
-            <td>{{ c.email ?? '—' }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div v-else-if="clientes.length === 0">
+      <p>No hay clientes. Inserta uno para probar.</p>
     </div>
-  </section>
+
+    <ul v-else>
+      <li v-for="cliente in clientes" :key="cliente.cod_cliente">
+        {{ cliente.nombre }} {{ cliente.apellido }} — {{ cliente.email ?? '—' }}
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 
 const clientes = ref([])
-const loading = ref(true)
-const error = ref(null)
+const error = ref('')
+const nuevo = ref({ nombre: '', apellido: '', email: '' })
 
-onMounted(async () => {
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+async function cargarClientes() {
   try {
-    // ✅ Usando la variable de entorno VITE_API_URL
-const res = await fetch('https://backend-wd6r.onrender.com/clientes')
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const res = await fetch(`${API_URL}/clientes`)
+    if (!res.ok) throw new Error('Error al obtener clientes')
     clientes.value = await res.json()
   } catch (err) {
-    console.error(err)
-    error.value = 'No se pudieron cargar los clientes. Revisa el backend.'
-  } finally {
-    loading.value = false
+    error.value = err.message
   }
-})
+}
+
+async function agregarCliente() {
+  try {
+    const res = await fetch(`${API_URL}/clientes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(nuevo.value),
+    })
+    if (!res.ok) {
+      const data = await res.json()
+      throw new Error(data.error || 'Error al agregar cliente')
+    }
+    nuevo.value = { nombre: '', apellido: '', email: '' }
+    await cargarClientes()
+  } catch (err) {
+    error.value = err.message
+  }
+}
+
+onMounted(cargarClientes)
 </script>
 
 <style scoped>
-.table { width:100%; border-collapse: collapse; margin-top:12px; }
-.table th, .table td { border:1px solid #ddd; padding:8px; text-align:left; }
-.error { color: #a33; margin-bottom:12px; }
+.form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.error {
+  color: red;
+  font-weight: bold;
+}
 </style>

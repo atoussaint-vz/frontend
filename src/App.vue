@@ -15,7 +15,12 @@ import Clientes from './components/Clientes.vue'
 </script>
 
 <style>
-/* estilo mínimo */
-.container { max-width:900px; margin:32px auto; font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial; }
-header h1 { margin:0 0 16px 0; }
+.container {
+  max-width: 900px;
+  margin: 32px auto;
+  font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial;
+}
+header h1 {
+  margin: 0 0 16px 0;
+}
 </style>
